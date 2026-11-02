@@ -1,0 +1,38 @@
+name: Build & Verify CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build & Verify (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install All Dependencies
+        run: |
+          npm install --include=dev
+          npm --prefix server install --include=dev
+          npm --prefix client install --include=dev
+
+      - name: Build Frontend Application
+        run: npm --prefix client run build
+
+      - name: Verify Server Syntax & Startup
+        run: node -c server/server.js

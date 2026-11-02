@@ -1,171 +1,137 @@
-# Genomics Laboratory Sequencing Workflow Management System
+# 🧬 Genomics Laboratory Sequencing Workflow Management System
 
-A centralized, production-quality MERN stack web platform that tracks a clinical genomics laboratory's complete next-generation sequencing (NGS) lifecycle — from an investigator's initial requisition, through specimen intake, quality control (QC), sequencing flowcell runs, and bioinformatic variant calling, to a verified downloadable clinical PDF report.
+<div align="center">
+
+[![Live Demo](https://img.shields.io/badge/Live_App-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://genomics-laboratory-sequencing-workflow.onrender.com)
+[![Database](https://img.shields.io/badge/Database-MongoDB_Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
+[![Frontend](https://img.shields.io/badge/Frontend-React_18_%26_Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Backend](https://img.shields.io/badge/Backend-Node.js_%26_Express-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Styling](https://img.shields.io/badge/Styling-Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](./LICENSE)
+
+**A centralized, production-grade MERN stack clinical platform that tracks the complete next-generation sequencing (NGS) lifecycle — from an investigator's initial requisition, through specimen intake, quality control (QC), sequencing flowcell batching, and bioinformatic variant calling, to a verified downloadable clinical PDF report.**
+
+[🌐 Explore the Live Application](https://genomics-laboratory-sequencing-workflow.onrender.com) • [📖 Deployment Guide](./DEPLOYMENT_GUIDE.md) • [💻 Client Docs](./client/README.md) • [⚙️ Server Docs](./server/README.md)
+
+</div>
+
+---
+
+## 🌟 Key System Capabilities
+
+- **Complete 6-Stage NGS Lifecycle Tracking:** Real-time progression across:
+  `[1. Registered] ➔ [2. Quality Control] ➔ [3. Sequencing] ➔ [4. Bioinformatics Analysis] ➔ [5. Report Ready] ➔ [6. Delivered]`
+- **Fluorometric & Microfluidic Quality Control:** Records concentration ($ng/\mu L$), $A_{260}/A_{280}$ and $A_{260}/A_{230}$ ratios, and Agilent TapeStation RNA/DNA Integrity Numbers (RIN/DIN) with automated pass/fail gating.
+- **Instrument Flowcell Scheduling & Lane Batching:** Coordinates Illumina NovaSeq 6000, NextSeq 2000, and PacBio Sequel IIe sequencing runs with automated barcode indexing and target coverage telemetry.
+- **Automated Clinical PDF Report Generator:** Server-side PDF generation using PDFKit featuring institution headers, sample metrics, somatic/germline variant tables, and cryptographic electronic signatures (ISO-15189 compliance).
+- **HL7 FHIR Interoperability:** Generates standardized HL7 FHIR Genomics JSON bundles for Electronic Health Record (EHR) integration.
+- **Role-Based Access Control (RBAC):** Three discrete clinical roles (Administrator, Lab Staff, Clinician/Requester) with granular permission guards.
+- **21 CFR Part 11 & ISO 15189:2022 Cryptographic Audit Trail:** Immutable event logger tracking every record modification, timestamp, user ID, and IP address.
 
 ---
 
 ## 🔬 Tech Stack
 
-- **Frontend:** React 18, Vite, React Router v6, Tailwind CSS, Axios, Lucide React, Recharts
-- **Backend:** Node.js, Express.js, JWT Authentication (httpOnly cookies), bcryptjs, Custom RBAC Middleware
-- **Database:** MongoDB with Mongoose ODM (includes embedded MongoMemoryServer fallback for instant zero-config startup)
-- **File Handling & PDF:** Multer (bioinformatics result uploads), PDFKit (server-side clinical genomics PDF report generator)
-- **Tooling:** dotenv, express-validator, morgan, cors, cookie-parser, concurrently
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 18, Vite 5, React Router v6, Tailwind CSS, Recharts, Lucide React, Axios |
+| **Backend** | Node.js, Express.js 4.19, JWT Authentication, bcryptjs, Express-Validator, Morgan |
+| **Database** | MongoDB with Mongoose ODM (Cloud MongoDB Atlas + local daemon) |
+| **Document Engine** | PDFKit (server-side clinical report compilation with digital signature hashes) |
+| **Interoperability**| HL7 FHIR Genomics JSON Schema specification |
+| **DevOps & Cloud** | Render Web Services, GitHub Actions CI, Vercel SPA routing |
 
 ---
 
 ## 👥 Demo User Logins (Role-Based Access Control)
 
-The system comes pre-seeded with realistic clinical workflow data and multi-role demo accounts. Quick 1-click fill buttons are also available on the Login screen.
+The system comes pre-seeded with realistic clinical workflow data and multi-role demo accounts. Quick **1-Click Fill** buttons are also available directly on the login screen.
 
-| Role | Name | Email | Password | Permissions |
+| Role | Name | Email | Password | Permissions & Clinical Scope |
 |---|---|---|---|---|
-| **Admin** | Dr. Eleanor Vance | `admin@genomicslab.org` | `Admin123!` | System director; full access to all modules, charts, reports, and User Management (create/edit/deactivate accounts). |
-| **Lab Staff** | Sarah Lin, M.S. | `staff1@genomicslab.org` | `Staff123!` | Review requisitions, register specimens, log fluorometric QC, schedule sequencing runs, log variant analysis, compile and deliver reports. |
-| **Lab Staff** | Marcus Brody | `staff2@genomicslab.org` | `Staff123!` | Operates sequencing instruments, records TapeStation / QC, performs GATK/Clair3 bioinformatics analysis. |
-| **Requester** | Dr. Alexander Hayes | `requester1@genomicslab.org` | `Requester123!` | Researcher/Oncologist; submit requisitions, track specimen progress timelines, view and download delivered clinical PDF reports. |
-| **Requester** | Dr. Priya Nair | `requester2@genomicslab.org` | `Requester123!` | Rare disease investigator; monitors trio WGS requisitions and downloads verified reports. |
-| **Requester** | Dr. Carlos Mendez | `requester3@genomicslab.org` | `Requester123!` | Molecular pathologist; tracks FFPE and metagenomic liquid biopsy requisitions. |
+| **System Admin** | Dr. Eleanor Vance | `admin@genomicslab.org` | `Admin123!` | System director; full administrative access, user management, executive analytics, and audit trail. |
+| **Lab Staff** | Sarah Lin, M.S. | `staff1@genomicslab.org` | `Staff123!` | Review requisitions, register specimens, log QC telemetry, schedule sequencing runs, compile diagnostic reports. |
+| **Lab Staff (Bioinfo)** | Marcus Brody | `staff2@genomicslab.org` | `Staff123!` | Instrument telemetry ingestion, somatic variant analysis, and bioinformatic QC. |
+| **Requester (Oncology)** | Dr. Alexander Hayes | `requester1@genomicslab.org` | `Requester123!` | Submit requisitions, monitor specimen milestones, and download verified clinical PDF reports. |
+| **Requester (Genetics)** | Dr. Priya Nair | `requester2@genomicslab.org` | `Requester123!` | Rare disease investigator; monitors trio WGS requisitions and downloads verified reports. |
+| **Requester (Pathology)**| Dr. Carlos Mendez | `requester3@genomicslab.org` | `Requester123!` | Molecular pathologist; tracks FFPE and metagenomic liquid biopsy requisitions. |
 
 ---
 
-## 🚀 Quick Start Guide
+## 🚀 Quick Start (Local Development)
 
 ### 1. Prerequisites
-- **Node.js** v18+ (tested on Node v24)
+- **Node.js** v18+ (tested on Node v20 and v24)
 - **npm** v9+
-- Optional: MongoDB running locally or on Atlas. *(Note: If MongoDB is not running locally, the server automatically starts an embedded in-memory MongoDB instance with zero manual setup required).*
 
 ### 2. Installation
-From the root directory, install all dependencies across root, server, and client:
+Clone the repository and install all dependencies across root, server, and client:
 ```bash
+git clone https://github.com/naga-akshya-k/Genomics-Laboratory-Sequencing-Workflow-Management-System.git
+cd Genomics-Laboratory-Sequencing-Workflow-Management-System
 npm run install:all
 ```
-*(Or install individually)*:
+
+### 3. Environment Setup
+Copy the example environment template in `server/`:
 ```bash
-npm install
-cd server && npm install
-cd ../client && npm install
+cp server/.env.example server/.env
 ```
+*(The server defaults to port `5000` and automatically connects to MongoDB Atlas or local persistent storage).*
 
-### 3. Environment Configuration
-Verify or create `server/.env` (a ready-to-use template is in `server/.env.example`):
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/genomics_workflow
-JWT_SECRET=genomics_super_secret_jwt_key_2026_workflow_mgmt
-CLIENT_ORIGIN=http://localhost:5173
-```
-
-### 4. Database Seeding (Demo Data)
-Populate realistic demo records (users, requests, specimens across all 6 stages, QC metrics, flowcell runs, analysis records, and pre-compiled PDF files on disk):
+### 4. Database Seeding (Optional)
+Populate realistic clinical demo data (specimens across all 6 stages, QC metrics, flowcell runs, analysis results, and PDF reports):
 ```bash
 npm run seed
 ```
-*(Alternatively: `cd server && npm run seed`)*
+*(Note: The server also auto-seeds automatically on first boot if the database is empty).*
 
-> **Note:** The server also features auto-seeding on startup if it detects an empty database.
-
-### 5. Running the Application
-To run both backend API server and frontend client concurrently:
+### 5. Run the Application
+Start both the backend API server and frontend client concurrently:
 ```bash
 npm run dev
 ```
 
-- **Client:** `http://localhost:5173`
-- **API Server:** `http://localhost:5000/api/v1`
-- **Health Check:** `http://localhost:5000/api/v1/health`
+- **Client Application:** `http://localhost:5173`
+- **Backend API Server:** `http://localhost:5000/api/v1`
+- **Health Check Endpoint:** `http://localhost:5000/api/v1/health`
 
 ---
 
-## 🌐 Production Cloud Deployment & MongoDB Atlas
+## 🌐 Production Cloud Deployment (MongoDB Atlas & Render)
 
-For full cloud deployment instructions (supporting **MongoDB Atlas**, **Render**, **Vercel**, and **Railway**), see the detailed guide:
+For full step-by-step instructions on deploying the frontend and backend with MongoDB Atlas, refer to:
 👉 **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)**
 
-Quick Deployment Summary:
-- **Database:** Connects directly to MongoDB Atlas SRV URI (`mongodb+srv://...`).
-- **Unified Deployment (Render / Railway):** Root `npm start` serves both the Express REST API and the compiled React production build (`client/dist`).
-- **Split Deployment (Vercel Frontend + Render Backend):** Set `VITE_API_URL` on Vercel to point to your live backend. Includes `vercel.json` rewrites for SPA routing.
-- **Auto-Seeding:** Automatically seeds all 6 demo clinical accounts on first launch if the database is empty.
-
 ---
 
-## 🧬 End-to-End Workflow Demonstration
-
-To test the complete clinical sequencing lifecycle without touching the database:
-
-1. **Log in as Requester (`requester1@genomicslab.org`)**:
-   - Go to **New Requisition** (`/requests/new`).
-   - Submit a study (e.g., *"Targeted cfDNA Deep Panel"*, Sample Type: *Blood*, Priority: *Urgent*).
-   - View your requisition in **My Requests** with status pill `Submitted`.
-
-2. **Log in as Lab Staff (`staff1@genomicslab.org`)**:
-   - Open **Dashboard** — see the new requisition appearing in the **Requisitions to Review** actionable queue.
-   - Click the requisition and click **Update Review Status** -> change to `Approved`.
-   - Click **Register Specimen** to assign barcode (e.g., `SMP-2026-0013`).
-   - Navigate to **Quality Control** (`/qc`) and click **Log Quality Control**:
-     - Select the specimen.
-     - Enter Concentration (e.g. `45.2 ng/µL`), Purity A260/280 (`1.85`), A260/230 (`2.10`), Volume (`30 µL`), Integrity RIN (`8.9`), and Outcome `Pass`.
-     - Specimen stage advances to `QC`.
-   - Navigate to **Sequencing Runs** (`/sequencing`) and click **Schedule Sequencing Run**:
-     - Platform: `Illumina NovaSeq`, Application: `WES`, Coverage: `100x`.
-     - Check the checkbox for the specimen to batch it into the run.
-     - Once scheduled, mark status `Completed`. Specimen stage advances to `Analysis`.
-   - Navigate to **Bioinformatics** (`/analysis`) and click **Record Analysis**:
-     - Pipeline: `BWA-MEM + GATK Mutect2`, Reference: `GRCh38`.
-     - Enter clinical findings and attach a file (optional).
-     - Specimen stage advances to `Report Ready`.
-   - Navigate to **Reports** (`/reports`) and click **Generate Clinical Report**:
-     - Select the requisition and specimen, enter molecular summary, and click **Compile & Save Report PDF**.
-     - PDFKit automatically creates the official PDF document on the server.
-     - Click **Deliver to Requester**. Specimen advances to `Delivered`.
-
-3. **Log back in as Requester (`requester1@genomicslab.org`)**:
-   - Open **Delivered Reports** (`/reports`).
-   - Click **PDF** or **Download Official PDF** on the report card.
-   - The verified clinical genomics PDF report will immediately download to your browser!
-
-4. **Log in as Admin (`admin@genomicslab.org`)**:
-   - View executive dashboard charts (Requisitions over 6 months with Recharts, specimen stage breakdown).
-   - Open **User Management** (`/admin/users`) to provision staff, reassign roles, or deactivate/activate accounts.
-
----
-
-## 🗄️ System Architecture & Data Models
+## 🏛️ System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                       React 18 + Vite                       │
-│  (Tailwind CSS, Lucide Icons, Recharts, Context Auth & Toast)│
-└──────────────────────────────┬──────────────────────────────┘
-                               │ HTTP / withCredentials: true
-┌──────────────────────────────▼──────────────────────────────┐
-│                  Express.js REST API (/api/v1)              │
-│       ├── JWT Auth Middleware (httpOnly Cookies)            │
-│       ├── Custom RBAC Middleware (admin, staff, requester)  │
-│       ├── Multer File Uploads (/uploads/analysis)           │
-│       └── PDFKit Clinical Report Generator                  │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ Mongoose ODM
-┌──────────────────────────────▼──────────────────────────────┐
-│                          MongoDB                            │
-│  ├── Users           ├── QCRecords      ├── Reports         │
-│  ├── Requests        ├── SequencingRuns                     │
-│  └── Samples         ├── AnalysisResults                    │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Specimen Stage Pipeline
-```
-[1. Registered] ──► [2. QC] ──► [3. Sequencing] ──► [4. Analysis] ──► [5. Report Ready] ──► [6. Delivered]
+                               ┌───────────────────────────┐
+                               │   React 18 Single-Page    │
+                               │     Application (UI)      │
+                               │  Vite + Tailwind + Charts │
+                               └─────────────┬─────────────┘
+                                             │  HTTP/JSON (Axios)
+                                             │  Dual-Auth (Bearer + Cookies)
+                                             ▼
+                               ┌───────────────────────────┐
+                               │   Node.js / Express API   │
+                               │  Role-Based Access (RBAC) │
+                               └──────┬─────────────┬──────┘
+                                      │             │
+                Mongoose ODM          │             │  PDFKit Generator
+                Persistent Connection │             │  Digital Signatures
+                                      ▼             ▼
+                        ┌──────────────────┐   ┌──────────────────┐
+                        │  MongoDB Atlas   │   │  Clinical PDFs   │
+                        │  Cloud Database  │   │  & FHIR Bundles  │
+                        └──────────────────┘   └──────────────────┘
 ```
 
 ---
 
-## 🛡️ Security Features
-- **Passwords:** Hashed with `bcryptjs` (salt rounds ≥ 10). `passwordHash` is excluded from all API responses and transforms.
-- **Tokens:** Signed with JWT (7-day duration), delivered in `httpOnly`, `sameSite: 'lax'` cookies.
-- **RBAC:** Enforced route-by-route at the controller/middleware level (`requireRole(['admin', 'lab_staff'])`).
-- **Data Scoping:** Requesters are strictly confined to their own requisitions, samples, and delivered reports.
-- **Validation:** Input payload validation using `express-validator` with structured 400 responses.
+## 📜 License
+
+This project is licensed under the [MIT License](./LICENSE) — free to use, study, and modify.
