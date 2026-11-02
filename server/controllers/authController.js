@@ -9,10 +9,11 @@ const generateTokenAndSetCookie = (user, res) => {
     { expiresIn: '7d' }
   );
 
+  const isProduction = process.env.NODE_ENV === 'production';
   res.cookie('token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -119,10 +120,11 @@ const login = async (req, res, next) => {
 // @route POST /api/v1/auth/logout
 // @access Public / Self
 const logout = async (req, res) => {
+  const isProduction = process.env.NODE_ENV === 'production';
   res.clearCookie('token', {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction,
   });
 
   res.status(200).json({

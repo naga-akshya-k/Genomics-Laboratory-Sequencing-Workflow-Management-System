@@ -47,9 +47,29 @@ const connectDB = async () => {
     await mongoose.disconnect();
   }
 
-  const defaultUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/genomics_workflow';
+  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/genomics_workflow';
 
-  // 1. Check if port 27017 is already listening
+  // Check if connecting to MongoDB Atlas or remote cloud instance
+  const isAtlasOrCloud =
+    uri.startsWith('mongodb+srv://') ||
+    (!uri.includes('localhost') && !uri.includes('127.0.0.1'));
+
+  if (isAtlasOrCloud) {
+    console.log('[Database] Connecting to MongoDB Atlas / Cloud database cluster...');
+    try {
+      await mongoose.connect(uri, {
+        serverSelectionTimeoutMS: 15000,
+      });
+      console.log(`[Database] MongoDB Atlas Connected successfully: ${mongoose.connection.host}/${mongoose.connection.name}`);
+      return;
+    } catch (err) {
+      console.error('[Database] Failed to connect to MongoDB Atlas:', err.message);
+      throw err;
+    }
+  }
+
+  // Local development flow
+  console.log('[Database] Using local MongoDB configuration...');
   const portOpen = await isPortOpen(27017);
 
   if (!portOpen) {
@@ -66,7 +86,7 @@ const connectDB = async () => {
         detached: false,
       });
 
-      // Poll until port 27017 is accepting connections (up to 10 seconds)
+      // Poll until port 27017 is accepting connections
       for (let i = 0; i < 20; i++) {
         await new Promise((r) => setTimeout(r, 500));
         if (await isPortOpen(27017)) {
@@ -78,7 +98,7 @@ const connectDB = async () => {
   }
 
   try {
-    await mongoose.connect(defaultUri, {
+    await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000,
     });
     console.log(`[Database] MongoDB Connected successfully to: ${mongoose.connection.host}:${mongoose.connection.port}/${mongoose.connection.name}`);
@@ -125,3 +145,4 @@ process.on('SIGTERM', async () => {
 });
 
 module.exports = { connectDB, disconnectDB };
+

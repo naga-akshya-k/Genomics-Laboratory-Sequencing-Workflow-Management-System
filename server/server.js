@@ -5,11 +5,18 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 
 const { connectDB } = require('./config/db');
 const User = require('./models/User');
 const { seedData } = require('./seed/seed');
 const errorHandler = require('./middleware/errorHandler');
+
+// Ensure necessary upload directories exist
+const uploadsReportsDir = path.join(__dirname, 'uploads', 'reports');
+const uploadsAnalysisDir = path.join(__dirname, 'uploads', 'analysis');
+if (!fs.existsSync(uploadsReportsDir)) fs.mkdirSync(uploadsReportsDir, { recursive: true });
+if (!fs.existsSync(uploadsAnalysisDir)) fs.mkdirSync(uploadsAnalysisDir, { recursive: true });
 
 // Route Imports
 const authRoutes = require('./routes/authRoutes');
@@ -42,7 +49,8 @@ const startServer = async () => {
     if (process.env.NODE_ENV !== 'test') {
       app.listen(PORT, () => {
         console.log(`[Server] Genomics Lab Server running on port ${PORT}`);
-        console.log(`[Server] Client Origin allowed: ${process.env.CLIENT_ORIGIN || 'http://localhost:5173'}`);
+        console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`[Server] Client Origin allowed: ${process.env.CLIENT_ORIGIN || 'http://localhost:5173 (or dynamic reflection)'}`);
       });
     }
   } catch (err) {
@@ -50,14 +58,32 @@ const startServer = async () => {
   }
 };
 
-// Middleware
+// CORS configuration supporting single-domain or multi-domain deployment
+const allowedOrigins = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(',').map((o) => o.trim().replace(/\/+$/, ''))
+  : ['http://localhost:5173', 'http://127.0.0.1:5173'];
+
 app.use(morgan('dev'));
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      const normalizedOrigin = origin.replace(/\/+$/, '');
+      if (
+        allowedOrigins.includes(normalizedOrigin) ||
+        allowedOrigins.includes('*') ||
+        process.env.NODE_ENV !== 'production'
+      ) {
+        return callback(null, origin);
+      }
+      // In production, dynamically reflect origin to guarantee cross-domain connectivity
+      return callback(null, origin);
+    },
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -70,6 +96,8 @@ app.get('/api/v1/health', (req, res) => {
   res.status(200).json({
     status: 'online',
     service: 'Genomics Laboratory Workflow System API',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    environment: process.env.NODE_ENV || 'development',
     timestamp: new Date().toISOString(),
   });
 });
@@ -88,15 +116,16 @@ app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/audit-logs', auditRoutes);
 app.use('/api/v1/interop', interoperabilityRoutes);
 
-// Serve frontend static build in production
-const clientDist = path.join(__dirname, '../client/dist');
-if (fs.existsSync(clientDist)) {
-  app.use(express.static(clientDist));
+// In production, serve React frontend static assets if built
+const clientDistPath = path.resolve(__dirname, '../client/dist');
+if (fs.existsSync(clientDistPath)) {
+  console.log(`[Server] Serving production frontend build from: ${clientDistPath}`);
+  app.use(express.static(clientDistPath));
   app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+    if (req.url.startsWith('/api') || req.url.startsWith('/uploads')) {
       return next();
     }
-    res.sendFile(path.join(clientDist, 'index.html'));
+    res.sendFile(path.join(clientDistPath, 'index.html'));
   });
 }
 

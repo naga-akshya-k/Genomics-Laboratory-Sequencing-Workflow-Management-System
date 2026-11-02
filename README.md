@@ -78,6 +78,19 @@ npm run dev
 
 ---
 
+## 🌐 Production Cloud Deployment & MongoDB Atlas
+
+For full cloud deployment instructions (supporting **MongoDB Atlas**, **Render**, **Vercel**, and **Railway**), see the detailed guide:
+👉 **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)**
+
+Quick Deployment Summary:
+- **Database:** Connects directly to MongoDB Atlas SRV URI (`mongodb+srv://...`).
+- **Unified Deployment (Render / Railway):** Root `npm start` serves both the Express REST API and the compiled React production build (`client/dist`).
+- **Split Deployment (Vercel Frontend + Render Backend):** Set `VITE_API_URL` on Vercel to point to your live backend. Includes `vercel.json` rewrites for SPA routing.
+- **Auto-Seeding:** Automatically seeds all 6 demo clinical accounts on first launch if the database is empty.
+
+---
+
 ## 🧬 End-to-End Workflow Demonstration
 
 To test the complete clinical sequencing lifecycle without touching the database:

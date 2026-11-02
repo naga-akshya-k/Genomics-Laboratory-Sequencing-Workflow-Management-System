@@ -69,7 +69,8 @@ const ReportDetail = () => {
 
   const handleExportFhir = () => {
     showToast('Exporting HL7 FHIR Genomics JSON bundle...', 'info');
-    window.open(`/api/v1/interop/fhir/reports/${report._id}`, '_blank');
+    const apiBase = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/+$/, '') : '';
+    window.open(`${apiBase}/api/v1/interop/fhir/reports/${report._id}`, '_blank');
   };
 
   if (loading) {
