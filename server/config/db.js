@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const net = require('net');
+const dns = require('dns');
 const { spawn } = require('child_process');
 const mongoose = require('mongoose');
 
@@ -55,6 +56,11 @@ const connectDB = async () => {
     (!uri.includes('localhost') && !uri.includes('127.0.0.1'));
 
   if (isAtlasOrCloud) {
+    try {
+      dns.setServers(['8.8.8.8', '1.1.1.1']);
+    } catch (dnsErr) {
+      // ignore if custom dns cannot be set
+    }
     console.log('[Database] Connecting to MongoDB Atlas / Cloud database cluster...');
     try {
       await mongoose.connect(uri, {
@@ -145,4 +151,3 @@ process.on('SIGTERM', async () => {
 });
 
 module.exports = { connectDB, disconnectDB };
-
